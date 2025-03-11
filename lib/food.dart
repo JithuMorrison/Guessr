@@ -195,9 +195,9 @@ class _HangmanfGameState extends State<HangmanfGame> {
       score = score+1; // Reset score for new game
     });
     if (score > maxScore) {
-      await DatabaseHelper().updateMaxScore(selectedClue, score);
+      await DatabaseHelper().updateMaxScore('food', score);
     }
-    await DatabaseHelper().insertDailyScore(1); // Add 1 point to daily score
+    await DatabaseHelper().insertDailyScore(); // Add 1 point to daily score
   }
 
   bool checkWin() {

@@ -75,7 +75,7 @@ class DatabaseHelper {
   }
 
   // Insert a daily score only if the date is not already present
-  Future<void> insertDailyScore(int score) async {
+  Future<void> insertDailyScore() async {
     final db = await database;
     final date = DateTime.now().toIso8601String().split('T')[0]; // Only store YYYY-MM-DD
 
@@ -84,7 +84,16 @@ class DatabaseHelper {
 
     if (existing.isEmpty) {
       // Insert only if the date is not already present
-      await db.insert('daily_scores', {'date': date, 'score': score});
+      await db.insert('daily_scores', {'date': date, 'score': 1});
+    } else {
+      // Update existing entry by adding the new score
+      final currentScore = existing.first['score'] as int;
+      await db.update(
+        'daily_scores',
+        {'score': currentScore + 1}, // Increment the score
+        where: 'date = ?',
+        whereArgs: [date],
+      );
     }
   }
 }
