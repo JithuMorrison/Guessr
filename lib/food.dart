@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+import 'db_helper.dart';
+
 class HangmanfGame extends StatefulWidget {
   @override
   _HangmanfGameState createState() => _HangmanfGameState();
@@ -145,13 +147,25 @@ class _HangmanfGameState extends State<HangmanfGame> {
   String selectedClue = "";
   List<String> guessedLetters = [];
   int remainingAttempts = 6;
+  int score = 0;
 
   @override
   void initState() {
     super.initState();
+    _initializeGame();
+  }
+
+  Future<void> _initializeGame() async {
     var randomEntry = clueWords.entries.elementAt(Random().nextInt(clueWords.length));
     selectedClue = randomEntry.key;
     selectedWord = randomEntry.value[Random().nextInt(randomEntry.value.length)];
+
+    int maxScore = await DatabaseHelper().getMaxScore(selectedClue); // Get max score
+    setState(() {
+      guessedLetters.clear();
+      remainingAttempts = 6;
+      score = 0; // Reset score for new game
+    });
   }
 
   String getWordDisplay() {
@@ -159,7 +173,7 @@ class _HangmanfGameState extends State<HangmanfGame> {
     return selectedWord.split('').map((letter) => guessedLetters.contains(letter) ? letter : "_").join(" ");
   }
 
-  void guessLetter(String letter) {
+  Future<void> guessLetter(String letter) async {
     setState(() {
       if (!guessedLetters.contains(letter)) {
         guessedLetters.add(letter);
@@ -168,6 +182,22 @@ class _HangmanfGameState extends State<HangmanfGame> {
         }
       }
     });
+  }
+
+  Future<void> _updateScore() async {
+    int maxScore = await DatabaseHelper().getMaxScore(selectedClue);
+    var randomEntry = clueWords.entries.elementAt(Random().nextInt(clueWords.length));
+    selectedClue = randomEntry.key;
+    selectedWord = randomEntry.value[Random().nextInt(randomEntry.value.length)];
+    setState(() {
+      guessedLetters.clear();
+      remainingAttempts = 6;
+      score = score+1; // Reset score for new game
+    });
+    if (score > maxScore) {
+      await DatabaseHelper().updateMaxScore(selectedClue, score);
+    }
+    await DatabaseHelper().insertDailyScore(1); // Add 1 point to daily score
   }
 
   bool checkWin() {
@@ -206,20 +236,22 @@ class _HangmanfGameState extends State<HangmanfGame> {
                 Text(getWordDisplay(), style: TextStyle(fontSize: 40, letterSpacing: 2, color: Colors.white)),
                 SizedBox(height: 20),
                 Text("Attempts Remaining: $remainingAttempts", style: TextStyle(fontSize: 18, color: Colors.white)),
+                Text("Score: $score", style: TextStyle(fontSize: 18, color: Colors.white)), // Display score
                 SizedBox(height: 20),
                 if (!isGameOver && !isGameWon) buildKeyboard(),
-                if (isGameOver || isGameWon)
+                if (isGameOver)
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        guessedLetters.clear();
-                        remainingAttempts = 6;
-                        var randomEntry = clueWords.entries.elementAt(Random().nextInt(clueWords.length));
-                        selectedClue = randomEntry.key;
-                        selectedWord = randomEntry.value[Random().nextInt(randomEntry.value.length)];
-                      });
+                      _initializeGame();
                     },
                     child: Text("Play Again"),
+                  ),
+                if(isGameWon)
+                  ElevatedButton(
+                    onPressed: () {
+                      _updateScore();
+                    },
+                    child: Text("Next Word?"),
                   ),
               ],
             ),
