@@ -16,9 +16,9 @@ class _MainPageState extends State<MainPage> {
   final List<Map<String, dynamic>> categories = [
     {"title": "Animals", "image": "https://wallpapercave.com/wp/wp2174944.jpg", "page": HangmanGamea()},
     {"title": "General", "image": "https://wallpaperaccess.com/full/90977.jpg", "page": HangmanGame()},
-    {"title": "Harry Potter", "image": "https://source.unsplash.com/600x300/?wizard,magic", "page": HangmanhGame()},
-    {"title": "Locations", "image": "https://source.unsplash.com/600x300/?city,landscape", "page": HangmancGame()},
-    {"title": "Food", "image": "https://source.unsplash.com/600x300/?food", "page": HangmanfGame()},
+    {"title": "Harry Potter", "image": "https://www.enwallpaper.com/wp-content/uploads/2021/05/Harry-Potter-Wallpaper-HD-2.jpg", "page": HangmanhGame()},
+    {"title": "Locations", "image": "https://th.bing.com/th/id/OIP._1tTXOXgXDGjpGDQFbC2SwHaE9?rs=1&pid=ImgDetMain", "page": HangmancGame()},
+    {"title": "Food", "image": "https://th.bing.com/th/id/OIP._1tTXOXgXDGjpGDQFbC2SwHaE9?rs=1&pid=ImgDetMain", "page": HangmanfGame()},
   ];
 
   @override
